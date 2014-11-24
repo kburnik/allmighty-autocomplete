@@ -154,6 +154,8 @@ app.directive('autocomplete', function() {
 
         var l = angular.element(this).find('li').length;
 
+        var ul = angular.element(this).find('ul');
+
         // implementation of the up and down movement in the list of suggestions
         switch (keycode){
           case key.up:
@@ -225,6 +227,26 @@ app.directive('autocomplete', function() {
             return;
         }
 
+        // Adjust the scroll position of the autocomplete dropdown list.
+        if (index == -1)
+          return;
+
+        var li = angular.element(this).find('li:eq(' + index + ")");
+
+        if (li.length == 0)
+          return;
+
+        var liTop = li.position().top;
+        var liHeight = liTop + liHeight;
+        var liBottom = liTop + li.height();
+
+        var frameTop = ul.scrollTop();
+        var frameHeight = ul.height();
+        var frameBottom = frameTop + frameHeight;
+        var i = 0;
+
+        ul.stop().animate({scrollTop:liTop, duration:300});
+
       });
     },
     template: '\
@@ -238,7 +260,7 @@ app.directive('autocomplete', function() {
           <ul ng-show="completing && suggestions.length>0">\
             <li\
               suggestion\
-              ng-repeat="suggestion in suggestions | filter:searchFilter | orderBy:\'toString()\' track by $index"\
+              ng-repeat="suggestion in suggestions | filter:searchFilter track by $index"\
               index="{{ $index }}"\
               val="{{ suggestion }}"\
               ng-class="{ active: ($index === selectedIndex) }"\
